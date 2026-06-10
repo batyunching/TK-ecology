@@ -1,0 +1,816 @@
+:root {
+  color-scheme: light;
+  --bg: #eef3ec;
+  --surface: rgba(255, 255, 255, 0.93);
+  --surface-strong: #ffffff;
+  --ink: #17211c;
+  --muted: #66736b;
+  --line: rgba(35, 60, 45, 0.16);
+  --forest: #24654a;
+  --forest-deep: #143d31;
+  --ocean: #1f6d8c;
+  --sun: #d79637;
+  --berry: #9a4d68;
+  --moss: #7d9b4f;
+  --danger: #b44436;
+  --shadow: 0 18px 50px rgba(20, 44, 35, 0.16);
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font-family: "Microsoft JhengHei", "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(238, 243, 236, 0.2), rgba(238, 243, 236, 0.92) 66%, #eef3ec),
+    url("./assets/ecosystem-banner.png") center top / cover no-repeat;
+}
+
+.site-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(20, 61, 49, 0.42), rgba(31, 109, 140, 0.2), rgba(215, 150, 55, 0.18)),
+    rgba(255, 255, 255, 0.04);
+}
+
+.toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 20;
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 12px 14px;
+  color: #ffffff;
+  background: rgba(20, 61, 49, 0.94);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.login-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.login-panel,
+.tool-panel,
+.preview-panel,
+.teacher-lock .tool-panel,
+.comments-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
+}
+
+.login-panel {
+  width: min(900px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  overflow: hidden;
+}
+
+.brand-block {
+  min-height: 560px;
+  padding: 42px;
+  color: #ffffff;
+  background:
+    linear-gradient(180deg, rgba(20, 61, 49, 0.26), rgba(20, 61, 49, 0.76)),
+    url("./assets/ecosystem-banner.png") center / cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.brand-block h1,
+.masthead h1 {
+  margin: 8px 0 0;
+  font-size: clamp(2rem, 5vw, 4.4rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.brand-copy {
+  margin: 14px 0 0;
+  font-size: 1.08rem;
+}
+
+.eyebrow,
+.tiny-label {
+  margin: 0;
+  color: currentColor;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tiny-label {
+  color: var(--muted);
+}
+
+.login-form,
+.tool-panel,
+.preview-panel,
+.teacher-lock .tool-panel {
+  padding: 26px;
+}
+
+.login-form {
+  align-self: center;
+}
+
+label,
+fieldset {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+fieldset {
+  padding: 0;
+  border: 0;
+}
+
+legend,
+label > span {
+  color: var(--forest-deep);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(36, 101, 74, 0.26);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.88);
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.55;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--ocean);
+  box-shadow: 0 0 0 3px rgba(31, 109, 140, 0.15);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.segmented label {
+  margin: 0;
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented span {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--forest-deep);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.segmented input:checked + span {
+  color: #ffffff;
+  background: var(--forest);
+  border-color: var(--forest);
+}
+
+.member-grid,
+.field-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.app-shell {
+  width: min(1240px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 48px;
+}
+
+.masthead {
+  min-height: 260px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 36px;
+  color: #ffffff;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(90deg, rgba(20, 61, 49, 0.86), rgba(31, 109, 140, 0.48), rgba(23, 33, 28, 0.36)),
+    url("./assets/ecosystem-banner.png") center / cover no-repeat;
+  box-shadow: var(--shadow);
+}
+
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin: 16px 0 0;
+  padding: 4px 10px;
+  color: #11362b;
+  font-size: 0.82rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 999px;
+}
+
+.session-card {
+  width: min(360px, 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius);
+  background: rgba(13, 39, 31, 0.58);
+  backdrop-filter: blur(12px);
+}
+
+.session-card strong,
+.session-card small {
+  display: block;
+}
+
+.session-card small {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.tabbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  padding: 14px 0;
+  background: linear-gradient(180deg, rgba(238, 243, 236, 0.96), rgba(238, 243, 236, 0.82));
+  backdrop-filter: blur(12px);
+}
+
+.tab,
+.primary-btn,
+.secondary-btn,
+.ghost-btn,
+.icon-text-btn {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.tab svg,
+.primary-btn svg,
+.secondary-btn svg,
+.ghost-btn svg,
+.icon-text-btn svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.tab {
+  padding: 0 16px;
+  color: var(--forest-deep);
+  background: rgba(255, 255, 255, 0.78);
+  border-color: var(--line);
+}
+
+.tab.active {
+  color: #ffffff;
+  background: var(--forest);
+}
+
+.primary-btn {
+  padding: 0 18px;
+  color: #ffffff;
+  background: var(--forest);
+}
+
+.secondary-btn {
+  padding: 0 16px;
+  color: var(--forest-deep);
+  background: #ffffff;
+  border-color: rgba(36, 101, 74, 0.24);
+}
+
+.ghost-btn,
+.icon-text-btn {
+  padding: 0 12px;
+  color: var(--forest-deep);
+  background: rgba(255, 255, 255, 0.76);
+  border-color: rgba(36, 101, 74, 0.18);
+}
+
+.icon-text-btn {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.full {
+  width: 100%;
+}
+
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.panel-heading,
+.filter-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.panel-heading h2,
+.filter-band h2,
+.comments-panel h2 {
+  margin: 4px 0 0;
+  font-size: 1.35rem;
+  letter-spacing: 0;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.preview-panel {
+  position: sticky;
+  top: 78px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  color: var(--forest-deep);
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: rgba(125, 155, 79, 0.16);
+  border: 1px solid rgba(125, 155, 79, 0.28);
+  border-radius: 999px;
+}
+
+.image-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(36, 101, 74, 0.16), rgba(31, 109, 140, 0.18)),
+    #f7faf6;
+}
+
+.image-stage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.image-stage.has-image img {
+  display: block;
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.empty-state svg {
+  width: 42px;
+  height: 42px;
+  color: var(--forest);
+}
+
+.image-stage.has-image .empty-state {
+  display: none;
+}
+
+.prompt-checklist {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.prompt-checklist span {
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--forest-deep);
+  font-size: 0.82rem;
+  font-weight: 800;
+  border: 1px solid rgba(36, 101, 74, 0.16);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.filter-band {
+  margin: 0 0 18px;
+  padding: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.filter-controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(120px, 0.6fr) minmax(150px, 0.8fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.filter-controls label {
+  margin: 0;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.work-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-strong);
+  box-shadow: 0 12px 32px rgba(20, 44, 35, 0.1);
+}
+
+.work-card img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  object-fit: cover;
+  background: #e8efe9;
+}
+
+.work-body {
+  padding: 14px;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  color: var(--forest-deep);
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: rgba(125, 155, 79, 0.14);
+  border-radius: 999px;
+}
+
+.tag.ocean {
+  color: #174e64;
+  background: rgba(31, 109, 140, 0.14);
+}
+
+.work-card h3 {
+  margin: 0 0 6px;
+  font-size: 1.08rem;
+}
+
+.work-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.score-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 10px;
+  background: rgba(238, 243, 236, 0.86);
+  border-radius: 6px;
+}
+
+.score-line strong {
+  font-size: 1.2rem;
+  color: var(--forest-deep);
+}
+
+details {
+  margin: 12px 0;
+  color: var(--muted);
+}
+
+summary {
+  color: var(--forest-deep);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.rating-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.rating-form label {
+  margin: 0;
+}
+
+.rating-form .primary-btn {
+  margin-top: 2px;
+}
+
+.empty-gallery {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-weight: 800;
+  border: 1px dashed rgba(36, 101, 74, 0.3);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.54);
+  grid-column: 1 / -1;
+}
+
+.teacher-lock {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+}
+
+.tool-panel.compact {
+  width: min(420px, 100%);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-tile {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 12px 28px rgba(20, 44, 35, 0.09);
+}
+
+.stat-tile span,
+.table-wrap th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.stat-tile strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--forest-deep);
+  font-size: 2rem;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+
+th,
+td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(35, 60, 45, 0.1);
+  vertical-align: top;
+}
+
+tbody tr:hover {
+  background: rgba(238, 243, 236, 0.8);
+}
+
+td a {
+  color: var(--ocean);
+  font-weight: 800;
+}
+
+.comments-panel {
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.comment-item {
+  display: grid;
+  gap: 6px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.comment-item:first-child {
+  border-top: 0;
+}
+
+.comment-item p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+  .login-panel,
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand-block {
+    min-height: 280px;
+  }
+
+  .masthead {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .session-card {
+    width: 100%;
+  }
+
+  .preview-panel {
+    position: static;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .app-shell {
+    width: min(100% - 20px, 1240px);
+    padding-top: 10px;
+  }
+
+  .login-screen {
+    padding: 10px;
+  }
+
+  .login-form,
+  .tool-panel,
+  .preview-panel,
+  .teacher-lock .tool-panel {
+    padding: 18px;
+  }
+
+  .brand-block,
+  .masthead {
+    padding: 24px;
+  }
+
+  .tabbar {
+    overflow-x: auto;
+  }
+
+  .tab {
+    flex: 0 0 auto;
+  }
+
+  .member-grid,
+  .field-pair,
+  .filter-controls,
+  .gallery-grid,
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-heading,
+  .filter-band {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .action-row {
+    flex-direction: column;
+  }
+
+  .prompt-checklist {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
