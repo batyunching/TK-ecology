@@ -1,6 +1,6 @@
 const CONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: "",
+  SUPABASE_URL: "https://bhyygpbeijrxspekrixg.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_sueEe9QWbkzc0rAoBG_jtw_t_AI5dQ1",
   TEACHER_CODE: "ecosystem44",
   STORAGE_BUCKET: "generated-images",
   EDGE_FUNCTION: "generate-ecosystem-image"
