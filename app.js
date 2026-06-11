@@ -124,6 +124,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderSession();
   renderGallery();
   renderTeacher();
+  updateDraftAccess();
 });
 
 function initIcons() {
@@ -181,7 +182,7 @@ function bindEvents() {
   $("#loginForm").addEventListener("submit", handleLogin);
   $("#logoutBtn").addEventListener("click", handleLogout);
   $("#submissionForm").addEventListener("submit", handleSubmission);
-  $("#ecosystemType").addEventListener("change", resetDraftPanel);
+  $("#ecosystemType").addEventListener("change", handleEcosystemChange);
   $("#showDraftBtn").addEventListener("click", showEcosystemDraft);
   $("#hideDraftBtn").addEventListener("click", hideDraftPanel);
   $("#buildPromptBtn").addEventListener("click", buildPrompt);
@@ -203,6 +204,13 @@ function bindEvents() {
 
   ["filterEcosystem", "filterSeat", "sortWorks"].forEach((id) => {
     $(`#${id}`).addEventListener("input", renderGallery);
+  });
+
+  ["environmentNotes", "plantNotes", "animalNotes", "relationshipNotes"].forEach((name) => {
+    $(`[name="${name}"]`).addEventListener("input", () => {
+      updateDraftAccess();
+      $("#externalAiNotice").classList.add("hidden");
+    });
   });
 }
 
@@ -324,9 +332,40 @@ function buildPrompt() {
   toast("Prompt 已組合。");
 }
 
+function handleEcosystemChange() {
+  ["environmentNotes", "plantNotes", "animalNotes", "relationshipNotes"].forEach((name) => {
+    const field = $(`[name="${name}"]`);
+    if (field) field.value = "";
+  });
+  $("#promptText").value = "";
+  $("#externalAiNotice").classList.add("hidden");
+  resetDraftPanel();
+  updateDraftAccess();
+}
+
+function updateDraftAccess() {
+  const ready = hasStudentDraftInputs();
+  $("#showDraftBtn").classList.toggle("hidden", !ready);
+  $("#draftStatus").textContent = ready ? "可查看內建草案" : "先完成自己的資料";
+  if (!ready) {
+    $("#draftPanel").classList.add("hidden");
+  }
+}
+
+function hasStudentDraftInputs() {
+  if (!clean($("#ecosystemType")?.value)) return false;
+  return ["environmentNotes", "plantNotes", "animalNotes", "relationshipNotes"]
+    .every((name) => clean($(`[name="${name}"]`)?.value));
+}
+
 function showEcosystemDraft() {
   const ecosystem = clean($("#ecosystemType").value);
   const draft = ECOSYSTEM_DRAFTS[ecosystem];
+  if (!hasStudentDraftInputs()) {
+    toast("請先自行完成環境、植物、動物與生物互動四欄，再查看內建草案。");
+    updateDraftAccess();
+    return;
+  }
   if (!draft) {
     $("#draftStatus").textContent = "沒有草案";
     $("#draftPanel").classList.add("hidden");
@@ -350,7 +389,8 @@ function hideDraftPanel() {
 
 function resetDraftPanel() {
   $("#draftPanel").classList.add("hidden");
-  $("#draftStatus").textContent = "尚未查看草案";
+  $("#showDraftBtn").classList.add("hidden");
+  $("#draftStatus").textContent = "先完成自己的資料";
 }
 
 async function copyPrompt() {
@@ -791,6 +831,7 @@ function resetSubmissionForm() {
   $("#submissionForm").reset();
   generatedImage = null;
   resetDraftPanel();
+  updateDraftAccess();
   $("#externalAiNotice").classList.add("hidden");
   setPreviewImage("", "尚未上傳");
 }
