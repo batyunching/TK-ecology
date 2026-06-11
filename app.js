@@ -266,7 +266,7 @@ async function handleGenerateImage() {
           seat: displaySeats(session)
         }
       });
-      if (error) throw error;
+      if (error) await throwFunctionError(error);
       if (!data?.imageUrl) throw new Error("圖片生成函式沒有回傳 imageUrl。");
       generatedImage = {
         url: data.imageUrl,
@@ -1069,6 +1069,25 @@ function setBusy(button, busy, label) {
       initIcons();
     }
   }
+}
+
+async function throwFunctionError(error) {
+  let message = error?.message || "Edge Function 呼叫失敗。";
+  const context = error?.context;
+  if (context && typeof context.json === "function") {
+    try {
+      const body = await context.json();
+      message = body?.error || body?.message || message;
+    } catch {
+      try {
+        const text = await context.text();
+        message = text || message;
+      } catch {
+        // Keep the original message if the response body has already been read.
+      }
+    }
+  }
+  throw new Error(message);
 }
 
 function clean(value) {
