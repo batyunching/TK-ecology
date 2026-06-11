@@ -422,6 +422,36 @@ textarea:focus {
   margin: 0 0 16px;
 }
 
+.external-ai-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: -6px 0 18px;
+  padding: 12px;
+  color: var(--forest-deep);
+  font-weight: 800;
+  line-height: 1.55;
+  border: 1px solid rgba(31, 109, 140, 0.24);
+  border-radius: 6px;
+  background: rgba(31, 109, 140, 0.1);
+}
+
+.external-ai-notice svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--ocean);
+}
+
+.draft-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: -4px 0 16px;
+}
+
 .preview-panel {
   position: sticky;
   top: 78px;
@@ -807,6 +837,11 @@ td a {
   }
 
   .action-row {
+    flex-direction: column;
+  }
+
+  .draft-actions {
+    align-items: stretch;
     flex-direction: column;
   }
 

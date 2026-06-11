@@ -106,8 +106,10 @@ function bindEvents() {
   $("#loginForm").addEventListener("submit", handleLogin);
   $("#logoutBtn").addEventListener("click", handleLogout);
   $("#submissionForm").addEventListener("submit", handleSubmission);
+  $("#ecosystemType").addEventListener("change", () => applyEcosystemDraft(true));
+  $("#applyDraftBtn").addEventListener("click", () => applyEcosystemDraft(true));
   $("#buildPromptBtn").addEventListener("click", buildPrompt);
-  $("#generateImageBtn").addEventListener("click", handleGenerateImage);
+  $("#copyPromptBtn").addEventListener("click", copyPrompt);
   $("#resetFormBtn").addEventListener("click", resetSubmissionForm);
   $("#imageFile").addEventListener("change", handleImageFilePreview);
   $("#imageUrl").addEventListener("input", handleImageUrlPreview);
@@ -236,7 +238,58 @@ function buildPrompt() {
   ].join("\n");
 
   $("#promptText").value = prompt;
+  $("#externalAiNotice").classList.remove("hidden");
+  initIcons();
   toast("Prompt 已組合。");
+}
+
+function applyEcosystemDraft(allowOverwrite) {
+  const ecosystem = clean($("#ecosystemType").value);
+  const draft = globalThis.ECOSYSTEM_DRAFTS?.[ecosystem];
+  if (!draft) {
+    $("#draftStatus").textContent = "尚未套用草案";
+    return;
+  }
+
+  const fields = [
+    ["environmentNotes", draft.environment],
+    ["plantNotes", draft.plants],
+    ["animalNotes", draft.animals],
+    ["relationshipNotes", draft.relationships]
+  ];
+
+  fields.forEach(([name, value]) => {
+    const field = $(`[name="${name}"]`);
+    if (!field) return;
+    if (allowOverwrite || !clean(field.value)) {
+      field.value = value;
+    }
+  });
+
+  $("#draftStatus").textContent = "已套用草案";
+  buildPrompt();
+}
+
+async function copyPrompt() {
+  if (!clean($("#promptText").value)) {
+    buildPrompt();
+  }
+  const prompt = clean($("#promptText").value);
+  if (!prompt) return;
+
+  try {
+    if (navigator.clipboard?.writeText && window.isSecureContext) {
+      await navigator.clipboard.writeText(prompt);
+    } else {
+      $("#promptText").focus();
+      $("#promptText").select();
+      document.execCommand("copy");
+      window.getSelection()?.removeAllRanges();
+    }
+    toast("Prompt 已複製。");
+  } catch {
+    toast("無法自動複製，請手動選取 Prompt。");
+  }
 }
 
 async function handleGenerateImage() {
@@ -330,7 +383,7 @@ async function handleSubmission(event) {
     return;
   }
   if (!generatedImage?.url) {
-    toast("請先產生、上傳或貼上圖片網址。");
+    toast("請先上傳圖片或貼上圖片網址。");
     return;
   }
 
@@ -654,7 +707,9 @@ function exportCsv() {
 function resetSubmissionForm() {
   $("#submissionForm").reset();
   generatedImage = null;
-  setPreviewImage("", "尚未產生");
+  $("#draftStatus").textContent = "尚未套用草案";
+  $("#externalAiNotice").classList.add("hidden");
+  setPreviewImage("", "尚未上傳");
 }
 
 function setPreviewImage(url, status) {

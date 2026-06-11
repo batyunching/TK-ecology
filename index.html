@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>4.4 生態系生圖工作室</title>
     <link rel="stylesheet" href="./styles.css" />
+    <script src="./drafts.js"></script>
     <script defer src="./app.js"></script>
   </head>
   <body>
@@ -124,6 +125,14 @@
               <select name="ecosystemType" id="ecosystemType" required></select>
             </label>
 
+            <div class="draft-actions">
+              <span class="status-pill" id="draftStatus">尚未套用草案</span>
+              <button class="ghost-btn" id="applyDraftBtn" type="button">
+                <i data-lucide="book-open-check"></i>
+                <span>套用草案</span>
+              </button>
+            </div>
+
             <label>
               <span>動植物環境特色</span>
               <textarea name="environmentNotes" rows="3" placeholder="地形、氣候、水分、光照、溫度、季節變化"></textarea>
@@ -160,9 +169,9 @@
                 <i data-lucide="wand-sparkles"></i>
                 <span>組合 Prompt</span>
               </button>
-              <button class="secondary-btn" id="generateImageBtn" type="button">
-                <i data-lucide="sparkles"></i>
-                <span>產生圖片</span>
+              <button class="secondary-btn" id="copyPromptBtn" type="button">
+                <i data-lucide="copy"></i>
+                <span>複製 Prompt</span>
               </button>
             </div>
 
@@ -170,6 +179,10 @@
               <span>生圖指令 Prompt</span>
               <textarea name="prompt" id="promptText" rows="8" required></textarea>
             </label>
+            <div class="external-ai-notice hidden" id="externalAiNotice">
+              <i data-lucide="sparkles"></i>
+              <span>請將指令貼到自己的 Gemini 或 ChatGPT 生成圖片，再將圖片上傳到這個網頁。</span>
+            </div>
 
             <div class="field-pair">
               <label>
@@ -194,7 +207,7 @@
                 <p class="tiny-label">Image Preview</p>
                 <h2>作品預覽</h2>
               </div>
-              <span class="status-pill" id="imageStatus">尚未產生</span>
+              <span class="status-pill" id="imageStatus">尚未上傳</span>
             </div>
 
             <div class="image-stage" id="imageStage">
