@@ -21,6 +21,81 @@ const ECOSYSTEMS = [
   "台灣高山草原生態系"
 ];
 
+const ECOSYSTEM_DRAFTS = {
+  "熱帶雨林生態系": {
+    environment: "全年高溫多雨，樹冠層、林下層與地表層明顯，濕度高、分解快，光線由上層到下層逐漸減弱。",
+    plants: "植物以常綠闊葉樹、藤本植物、附生植物與蕨類為主，為了爭取光線常有高大樹冠、板根、滴水葉尖與攀爬構造。",
+    animals: "草食：樹懶、貘、吼猴。肉食/食蟲：美洲豹、蟒蛇、樹蛙。雜食：捲尾猴、巨嘴鳥。無脊椎：切葉蟻、蝴蝶、甲蟲、蜘蛛。",
+    relationships: "1. 蜜蜂、蝴蝶與鳥類幫開花植物授粉。\n2. 猴類、鳥類吃果實後散播種子。\n3. 美洲豹捕食貘或猴類，形成掠食關係。\n4. 真菌與細菌分解落葉，讓養分回到土壤。"
+  },
+  "溫帶落葉林生態系": {
+    environment: "四季分明，春夏溫暖潮濕、秋季落葉、冬季寒冷，林下光照會隨季節變化，土壤腐植質較豐富。",
+    plants: "植物以橡樹、楓樹、山毛櫸等落葉闊葉樹為主，春季快速展葉，秋冬落葉可減少水分散失並形成腐植層。",
+    animals: "草食：白尾鹿、野兔、松鼠。肉食/食蟲：狐狸、貓頭鷹、蛇。雜食：浣熊、黑熊、野豬。無脊椎：蚯蚓、蝸牛、螞蟻、甲蟲。",
+    relationships: "1. 松鼠取食堅果並儲藏，部分種子能發芽。\n2. 狐狸、貓頭鷹捕食小型哺乳類。\n3. 蚯蚓與真菌分解落葉，增加土壤養分。\n4. 鹿取食幼苗，影響森林更新。"
+  },
+  "針葉林生態系": {
+    environment: "多位於高緯或高海拔地區，冬季漫長寒冷、夏季短暫，降水常以雪出現，土壤酸性且分解速度較慢。",
+    plants: "植物以松、杉、冷杉、雲杉等針葉樹為主，針狀葉與蠟質表皮能減少水分散失，圓錐形樹冠有助積雪滑落。",
+    animals: "草食：駝鹿、馴鹿、雪兔。肉食/食蟲：灰狼、猞猁、貓頭鷹、啄木鳥。雜食：棕熊、松鼠。無脊椎：天牛、蚊、蛾、蜘蛛。",
+    relationships: "1. 灰狼捕食鹿科動物，調節草食動物數量。\n2. 啄木鳥取食樹幹昆蟲，也提供樹洞給其他動物。\n3. 菌根真菌協助針葉樹吸收養分。\n4. 松鼠取食與藏放松子，可能幫助種子散播。"
+  },
+  "草原生態系": {
+    environment: "降雨量中等到偏少，乾濕季明顯，開闊少樹，火災與大型草食動物啃食常維持草本植物優勢。",
+    plants: "植物以禾本科草類與耐旱草本為主，根系深且再生力強，可在乾旱、火災或啃食後快速長回來。",
+    animals: "草食：斑馬、羚羊、野牛、草原犬鼠。肉食/食蟲：獅子、獵豹、鬣狗、蛇。雜食：狒狒、疣豬。無脊椎：蚱蜢、白蟻、螞蟻、糞金龜。",
+    relationships: "1. 獅子、獵豹捕食羚羊或斑馬。\n2. 糞金龜分解大型草食動物糞便，促進養分循環。\n3. 白蟻改變土壤通氣與水分，影響植物分布。\n4. 草食動物啃食草類，促進嫩葉再生。"
+  },
+  "沙漠生態系": {
+    environment: "降雨稀少、蒸發旺盛，日夜溫差大，土壤含水量低，生物多具有耐旱、夜行或儲水適應。",
+    plants: "植物以仙人掌、多肉植物、灌木與短命草本為主，常有厚莖儲水、刺狀葉、深根或短時間開花結種子的特徵。",
+    animals: "草食：駱駝、沙漠兔、袋鼠鼠。肉食/食蟲：狐狸、響尾蛇、蠍子、蜥蜴。雜食：渡鴉、郊狼。無脊椎：甲蟲、螞蟻、蠍子、蜘蛛。",
+    relationships: "1. 仙人掌花吸引昆蟲或蝙蝠授粉。\n2. 蛇與狐狸捕食鼠類，控制小型草食動物數量。\n3. 甲蟲取食枯枝落葉，參與分解。\n4. 動物多在夜間活動，降低與高溫環境的衝突。"
+  },
+  "湖泊生態系": {
+    environment: "靜水環境具有岸邊、表水層與深水層，光照與溶氧會隨深度改變，營養鹽影響藻類與水生植物生長。",
+    plants: "植物包含浮游藻類、沉水植物、浮葉植物與挺水植物，能提供氧氣、遮蔽、產卵場所與水生食物網的基礎。",
+    animals: "草食：田螺、蝌蚪、草魚。肉食/食蟲：鱸魚、蜻蜓若蟲、水蛇、翠鳥。雜食：鯽魚、鴨。無脊椎：水蚤、蜻蜓若蟲、搖蚊幼蟲、淡水蝦。",
+    relationships: "1. 浮游藻類被水蚤取食，水蚤再被魚類捕食。\n2. 水草提供魚蝦躲藏與產卵場所。\n3. 翠鳥或水蛇捕食小魚與蛙類。\n4. 細菌分解沉積有機物，影響水中養分。"
+  },
+  "溪流生態系": {
+    environment: "水流持續流動，含氧量高，水溫較穩定但受上游植被與降雨影響，石塊、急流與淺灘形成多樣微棲地。",
+    plants: "植物包含附著藻類、苔蘚、河岸草本與水邊灌木，根系可穩定河岸，落葉也提供水中生物能量來源。",
+    animals: "草食：螺類、水生昆蟲幼蟲。肉食/食蟲：溪哥、石斑魚、蛙、蜻蜓若蟲。雜食：溪蝦、蟹。無脊椎：石蠅若蟲、蜉蝣若蟲、水黽、螺。",
+    relationships: "1. 附著藻類被螺類與水生昆蟲刮食。\n2. 魚類、蛙類捕食水生昆蟲與溪蝦。\n3. 河岸落葉被碎食者分解，進入溪流食物網。\n4. 河岸植物根系減少土壤沖刷，維持水質。"
+  },
+  "河口生態系": {
+    environment: "淡水與海水交會，鹽度變化大，潮汐帶來營養鹽與沉積物，泥灘、紅樹林或鹽沼提供高生產力棲地。",
+    plants: "植物以紅樹林、鹽生草本與浮游藻類為主，能忍受鹽分與缺氧泥地，根系可攔截沉積物並提供幼魚庇護。",
+    animals: "草食：招潮蟹、螺類、魚類幼苗。肉食/食蟲：彈塗魚、鷺鷥、鷸鴴、水蛇。雜食：螃蟹、蝦虎魚。無脊椎：牡蠣、藤壺、多毛類、蝦。",
+    relationships: "1. 紅樹林落葉被蟹類與微生物分解，供應碎屑食物鏈。\n2. 鷺鷥與鷸鴴捕食魚蝦、螃蟹和多毛類。\n3. 牡蠣濾食浮游生物，改善局部水質。\n4. 河口作為幼魚避敵與成長場所。"
+  },
+  "近海區生態系": {
+    environment: "靠近陸地且光照可達，營養鹽較多，常有潮間帶、礁岩、海草床或珊瑚礁，是高生產力海域。",
+    plants: "生產者以大型海藻、海草與浮游藻類為主，能行光合作用，為魚類、貝類與無脊椎動物提供食物和棲身空間。",
+    animals: "草食：海膽、鸚哥魚、綠蠵龜。肉食/食蟲：石斑魚、章魚、海星、海鳥。雜食：雀鯛、螃蟹。無脊椎：珊瑚、海葵、蝦、貝類。",
+    relationships: "1. 珊瑚與共生藻互利，共生藻提供能量。\n2. 海膽啃食海藻，影響礁岩表面空間。\n3. 石斑魚捕食小魚與甲殼類。\n4. 海草床提供幼魚與蝦蟹躲藏。"
+  },
+  "遠洋區生態系": {
+    environment: "遠離海岸、海水深廣，表層有光照與浮游生物，深層黑暗且壓力大，生物常需長距離移動尋找食物。",
+    plants: "遠洋區沒有大型陸生植物，主要生產者是浮游藻類與藍綠菌，牠們在表層光合作用，是海洋食物網起點。",
+    animals: "草食：磷蝦、橈足類。肉食/食蟲：鮪魚、旗魚、魷魚、鯊魚、海豚。雜食：飛魚、海龜。無脊椎：水母、翼足螺、魷魚、浮游甲殼類。",
+    relationships: "1. 浮游藻類被橈足類與磷蝦取食。\n2. 鮪魚、旗魚追捕小魚與魷魚。\n3. 鯊魚與海豚位於較高消費階層。\n4. 死亡生物下沉形成海雪，供深海生物利用。"
+  },
+  "凍原生態系": {
+    environment: "氣候寒冷、夏季短、永久凍土常見，生長季很短，風強且土壤排水受限，植物低矮貼近地面。",
+    plants: "植物以苔蘚、地衣、莎草、矮灌木與短命花草為主，低矮生長可避風保溫，快速開花結種以利用短暫夏季。",
+    animals: "草食：馴鹿、麝牛、旅鼠、北極兔。肉食/食蟲：北極狐、雪鴞、北極狼。雜食：棕熊、渡鴉。無脊椎：蚊、蠅、甲蟲、蜘蛛。",
+    relationships: "1. 馴鹿取食地衣與草本，影響植物覆蓋。\n2. 雪鴞與北極狐捕食旅鼠。\n3. 夏季大量昆蟲提供鳥類繁殖期食物。\n4. 苔蘚與地衣覆蓋地表，減緩土壤溫度變化。"
+  },
+  "台灣高山草原生態系": {
+    environment: "多在台灣高海拔稜線或山坡，低溫、強風、日夜溫差大，冬季可能降雪，土壤薄且水分保存不易。",
+    plants: "植物以玉山箭竹、高山芒、短草與低矮灌木為主，常貼近地面生長，能耐強風、低溫與短暫生長季。",
+    animals: "草食：臺灣水鹿、臺灣野山羊。肉食/食蟲：黃喉貂、臺灣小黃鼠狼、雪山草蜥、山椒魚。雜食：臺灣黑熊、白耳畫眉、金翼白眉。無脊椎：高山蝴蝶、蝗蟲、蜘蛛、甲蟲。",
+    relationships: "1. 臺灣水鹿取食箭竹嫩葉，影響草原植物高度。\n2. 白耳畫眉、金翼白眉取食果實或昆蟲並可能散播種子。\n3. 黃喉貂捕食小型哺乳類或鳥類，形成掠食關係。\n4. 昆蟲與微生物分解枯草，讓養分回到土壤。"
+  }
+};
+
 const storageKeys = {
   session: "eco44-session",
   submissions: "eco44-submissions",
@@ -106,8 +181,9 @@ function bindEvents() {
   $("#loginForm").addEventListener("submit", handleLogin);
   $("#logoutBtn").addEventListener("click", handleLogout);
   $("#submissionForm").addEventListener("submit", handleSubmission);
-  $("#ecosystemType").addEventListener("change", () => applyEcosystemDraft(true));
-  $("#applyDraftBtn").addEventListener("click", () => applyEcosystemDraft(true));
+  $("#ecosystemType").addEventListener("change", resetDraftPanel);
+  $("#showDraftBtn").addEventListener("click", showEcosystemDraft);
+  $("#hideDraftBtn").addEventListener("click", hideDraftPanel);
   $("#buildPromptBtn").addEventListener("click", buildPrompt);
   $("#copyPromptBtn").addEventListener("click", copyPrompt);
   $("#resetFormBtn").addEventListener("click", resetSubmissionForm);
@@ -118,6 +194,7 @@ function bindEvents() {
 
   $$("input[name='groupSize']").forEach((input) => {
     input.addEventListener("change", updateGroupFields);
+    input.closest("label")?.addEventListener("click", () => window.setTimeout(updateGroupFields, 0));
   });
 
   $$(".tab").forEach((button) => {
@@ -137,9 +214,9 @@ function fillEcosystemSelects() {
 
 function updateGroupFields() {
   const groupSize = Number($("input[name='groupSize']:checked").value);
+  $("#loginForm").dataset.groupSize = String(groupSize);
   const memberB = $("#memberBFields");
   const inputs = $$("input", memberB);
-  memberB.classList.toggle("hidden", groupSize !== 2);
   inputs.forEach((input) => {
     input.required = groupSize === 2;
     if (groupSize !== 2) input.value = "";
@@ -221,11 +298,15 @@ function buildPrompt() {
     return;
   }
 
-  const environment = clean(data.get("environmentNotes")) || "呈現典型地形、氣候、水分、光照與季節條件";
-  const plants = clean(data.get("plantNotes")) || "包含能代表此生態系的植物與適應特徵";
-  const animals = clean(data.get("animalNotes")) || "包含能代表此生態系的動物與行為特徵";
-  const relationships = clean(data.get("relationshipNotes")) || "呈現食物鏈、生物互動與棲地關係";
+  const environment = clean(data.get("environmentNotes"));
+  const plants = clean(data.get("plantNotes"));
+  const animals = clean(data.get("animalNotes"));
+  const relationships = clean(data.get("relationshipNotes"));
   const style = clean(data.get("imageStyle"));
+  if (!environment || !plants || !animals || !relationships) {
+    toast("請先完成環境、植物、動物與生物互動四欄，再組合 Prompt。");
+    return;
+  }
 
   const prompt = [
     `請生成一張「${ecosystem}」的${style}。`,
@@ -243,31 +324,33 @@ function buildPrompt() {
   toast("Prompt 已組合。");
 }
 
-function applyEcosystemDraft(allowOverwrite) {
+function showEcosystemDraft() {
   const ecosystem = clean($("#ecosystemType").value);
-  const draft = globalThis.ECOSYSTEM_DRAFTS?.[ecosystem];
+  const draft = ECOSYSTEM_DRAFTS[ecosystem];
   if (!draft) {
-    $("#draftStatus").textContent = "尚未套用草案";
+    $("#draftStatus").textContent = "沒有草案";
+    $("#draftPanel").classList.add("hidden");
+    toast("請先選擇生態系。");
     return;
   }
 
-  const fields = [
-    ["environmentNotes", draft.environment],
-    ["plantNotes", draft.plants],
-    ["animalNotes", draft.animals],
-    ["relationshipNotes", draft.relationships]
-  ];
+  $("#draftEnvironment").textContent = draft.environment;
+  $("#draftPlants").textContent = draft.plants;
+  $("#draftAnimals").textContent = draft.animals;
+  $("#draftRelationships").textContent = draft.relationships;
+  $("#draftPanel").classList.remove("hidden");
+  $("#draftStatus").textContent = "已顯示草案";
+  initIcons();
+}
 
-  fields.forEach(([name, value]) => {
-    const field = $(`[name="${name}"]`);
-    if (!field) return;
-    if (allowOverwrite || !clean(field.value)) {
-      field.value = value;
-    }
-  });
+function hideDraftPanel() {
+  $("#draftPanel").classList.add("hidden");
+  $("#draftStatus").textContent = "尚未查看草案";
+}
 
-  $("#draftStatus").textContent = "已套用草案";
-  buildPrompt();
+function resetDraftPanel() {
+  $("#draftPanel").classList.add("hidden");
+  $("#draftStatus").textContent = "尚未查看草案";
 }
 
 async function copyPrompt() {
@@ -707,7 +790,7 @@ function exportCsv() {
 function resetSubmissionForm() {
   $("#submissionForm").reset();
   generatedImage = null;
-  $("#draftStatus").textContent = "尚未套用草案";
+  resetDraftPanel();
   $("#externalAiNotice").classList.add("hidden");
   setPreviewImage("", "尚未上傳");
 }

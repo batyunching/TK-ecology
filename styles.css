@@ -247,6 +247,15 @@ textarea:focus {
   gap: 14px;
 }
 
+.member-b {
+  display: none;
+}
+
+.login-form[data-group-size="2"] .member-b,
+.login-form:has(input[name="groupSize"][value="2"]:checked) .member-b {
+  display: grid;
+}
+
 .app-shell {
   width: min(1240px, calc(100% - 32px));
   margin: 0 auto;
@@ -450,6 +459,50 @@ textarea:focus {
   justify-content: space-between;
   gap: 10px;
   margin: -4px 0 16px;
+}
+
+.draft-panel {
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid rgba(31, 109, 140, 0.24);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.compact-heading {
+  margin-bottom: 10px;
+}
+
+.draft-note {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.draft-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.draft-grid article {
+  padding: 12px;
+  border: 1px solid rgba(36, 101, 74, 0.16);
+  border-radius: 6px;
+  background: rgba(238, 243, 236, 0.82);
+}
+
+.draft-grid h3 {
+  margin: 0 0 6px;
+  color: var(--forest-deep);
+  font-size: 0.92rem;
+}
+
+.draft-grid p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 .preview-panel {
@@ -843,6 +896,10 @@ td a {
   .draft-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .draft-grid {
+    grid-template-columns: 1fr;
   }
 
   .prompt-checklist {

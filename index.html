@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>4.4 生態系生圖工作室</title>
     <link rel="stylesheet" href="./styles.css" />
-    <script src="./drafts.js"></script>
     <script defer src="./app.js"></script>
   </head>
   <body>
@@ -20,7 +19,7 @@
           <p class="brand-copy">班級創作、作品展覽、同儕評分、老師總覽</p>
         </div>
 
-        <form class="login-form" id="loginForm">
+        <form class="login-form" id="loginForm" data-group-size="1">
           <label>
             <span>班級</span>
             <input name="className" type="text" placeholder="例：701" required />
@@ -51,7 +50,7 @@
             </label>
           </div>
 
-          <div class="member-grid member-b hidden" id="memberBFields">
+          <div class="member-grid member-b" id="memberBFields">
             <label>
               <span>第二位座號</span>
               <input name="seatB" type="text" inputmode="numeric" placeholder="例：13" />
@@ -126,10 +125,10 @@
             </label>
 
             <div class="draft-actions">
-              <span class="status-pill" id="draftStatus">尚未套用草案</span>
-              <button class="ghost-btn" id="applyDraftBtn" type="button">
+              <span class="status-pill" id="draftStatus">尚未查看草案</span>
+              <button class="ghost-btn" id="showDraftBtn" type="button">
                 <i data-lucide="book-open-check"></i>
-                <span>套用草案</span>
+                <span>查看內建草案</span>
               </button>
             </div>
 
@@ -153,6 +152,38 @@
               <span>生物互動</span>
               <textarea name="relationshipNotes" rows="3" placeholder="食物鏈、競爭、共生、掠食、分解者"></textarea>
             </label>
+
+            <div class="draft-panel hidden" id="draftPanel">
+              <div class="panel-heading compact-heading">
+                <div>
+                  <p class="tiny-label">Reference Draft</p>
+                  <h2>內建草案比較</h2>
+                </div>
+                <button class="ghost-btn" id="hideDraftBtn" type="button">
+                  <i data-lucide="x"></i>
+                  <span>關閉</span>
+                </button>
+              </div>
+              <p class="draft-note">草案只作為比對資料，請先保留自己的觀察與查詢結果，再判斷是否修改。</p>
+              <div class="draft-grid">
+                <article>
+                  <h3>環境特色</h3>
+                  <p id="draftEnvironment">-</p>
+                </article>
+                <article>
+                  <h3>植物特色</h3>
+                  <p id="draftPlants">-</p>
+                </article>
+                <article>
+                  <h3>動物特色</h3>
+                  <p id="draftAnimals">-</p>
+                </article>
+                <article>
+                  <h3>生物互動</h3>
+                  <p id="draftRelationships">-</p>
+                </article>
+              </div>
+            </div>
 
             <label>
               <span>圖片風格</span>

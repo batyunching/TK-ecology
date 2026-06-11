@@ -33,7 +33,7 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=你的_Service_Role_Key
 
 ## 草案與生圖流程
 
-學生選擇生態系後，網站會自動填入植物特色、動物特色與生物互動草案。這些資料存在 `drafts.js`，適合作為課堂起點；學生仍應依課本與查詢資料修改後再組合 Prompt。
+學生先自行填寫環境、植物、動物與生物互動內容，再按「組合 Prompt」。若需要比較，可按「查看內建草案」顯示參考資料；草案直接內建在 `app.js`，不會自動填入或覆蓋學生內容。
 
 學生可以複製 Prompt 到自己的 Gemini 或 ChatGPT 生圖，再回網站上傳圖片或貼上圖片網址。
 
