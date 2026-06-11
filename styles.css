@@ -33,6 +33,10 @@ body {
   font-family: "Microsoft JhengHei", "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 button,
 input,
 select,
@@ -619,12 +623,42 @@ textarea:focus {
   box-shadow: 0 12px 32px rgba(20, 44, 35, 0.1);
 }
 
-.work-card img {
+.work-image-btn {
+  position: relative;
+  width: 100%;
+  display: block;
+  padding: 0;
+  border: 0;
+  color: #ffffff;
+  background: #e8efe9;
+}
+
+.work-image-btn img {
   width: 100%;
   aspect-ratio: 4 / 3;
   display: block;
   object-fit: cover;
   background: #e8efe9;
+}
+
+.work-image-btn span {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 5px 9px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  border-radius: 999px;
+  background: rgba(20, 61, 49, 0.86);
+}
+
+.work-image-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
 .work-body {
@@ -680,6 +714,25 @@ textarea:focus {
 .score-line strong {
   font-size: 1.2rem;
   color: var(--forest-deep);
+}
+
+.similarity-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(35, 60, 45, 0.1);
+  border-radius: 6px;
+}
+
+.similarity-line span:last-child {
+  text-align: right;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 details {
@@ -771,7 +824,7 @@ summary {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 860px;
+  min-width: 980px;
 }
 
 th,
@@ -813,6 +866,231 @@ td a {
   line-height: 1.55;
 }
 
+.similarity-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 4px 9px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  border-radius: 999px;
+  border: 1px solid rgba(36, 101, 74, 0.18);
+}
+
+.similarity-pill.high {
+  color: #7d2f21;
+  background: rgba(180, 68, 54, 0.13);
+  border-color: rgba(180, 68, 54, 0.24);
+}
+
+.similarity-pill.medium {
+  color: #74501d;
+  background: rgba(215, 150, 55, 0.16);
+  border-color: rgba(215, 150, 55, 0.28);
+}
+
+.similarity-pill.low {
+  color: var(--forest-deep);
+  background: rgba(125, 155, 79, 0.16);
+  border-color: rgba(125, 155, 79, 0.28);
+}
+
+.teacher-detail-card {
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.teacher-detail-card:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.teacher-detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.teacher-detail-head p,
+.teacher-prompt-detail p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.similarity-summary {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  min-width: 116px;
+}
+
+.similarity-summary small,
+td small {
+  color: var(--muted);
+}
+
+.teacher-text-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.teacher-text-grid section {
+  padding: 12px;
+  border: 1px solid rgba(36, 101, 74, 0.16);
+  border-radius: 6px;
+  background: rgba(238, 243, 236, 0.66);
+}
+
+.teacher-text-grid h3 {
+  margin: 0 0 6px;
+  color: var(--forest-deep);
+  font-size: 0.9rem;
+}
+
+.teacher-text-grid h3 small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.teacher-text-grid p {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.58;
+  white-space: pre-line;
+}
+
+.teacher-prompt-detail {
+  margin-top: 12px;
+}
+
+.presentation-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  padding: 24px;
+  background: rgba(10, 24, 20, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.presentation-layout {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: 18px;
+}
+
+.presentation-image-wrap {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.presentation-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.presentation-info {
+  min-height: 0;
+  overflow: auto;
+  padding: 22px;
+  color: var(--ink);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.presentation-info h2 {
+  margin: 6px 0 12px;
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  line-height: 1.12;
+}
+
+.presentation-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.presentation-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 10px;
+  color: var(--forest-deep);
+  font-weight: 900;
+  border-radius: 999px;
+  background: rgba(125, 155, 79, 0.16);
+}
+
+.presentation-score {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.presentation-score div {
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(238, 243, 236, 0.86);
+}
+
+.presentation-score span,
+.presentation-score small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.presentation-score strong {
+  color: var(--forest-deep);
+  font-size: 1.6rem;
+}
+
+.presentation-info details {
+  color: var(--ink);
+}
+
+.presentation-info details p {
+  margin-top: 10px;
+  color: var(--muted);
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.presentation-close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 51;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.presentation-close svg {
+  width: 24px;
+  height: 24px;
+}
+
 @media (max-width: 980px) {
   .login-panel,
   .workspace-grid {
@@ -842,6 +1120,19 @@ td a {
 
   .stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-text-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .presentation-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .presentation-info {
+    max-height: 42vh;
   }
 }
 
@@ -904,5 +1195,22 @@ td a {
 
   .prompt-checklist {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .teacher-detail-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .similarity-summary {
+    justify-items: start;
+  }
+
+  .presentation-modal {
+    padding: 12px;
+  }
+
+  .presentation-score {
+    grid-template-columns: 1fr;
   }
 }

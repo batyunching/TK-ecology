@@ -10,6 +10,26 @@
   <body>
     <div class="site-bg"></div>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="presentation-modal hidden" id="presentationModal" role="dialog" aria-modal="true" aria-labelledby="presentationTitle">
+      <button class="presentation-close" id="presentationCloseBtn" type="button" aria-label="關閉放大展示">
+        <i data-lucide="x"></i>
+      </button>
+      <div class="presentation-layout">
+        <div class="presentation-image-wrap">
+          <img id="presentationImage" alt="放大展示圖片" />
+        </div>
+        <aside class="presentation-info">
+          <p class="tiny-label">Presentation</p>
+          <h2 id="presentationTitle">作品展示</h2>
+          <div class="presentation-meta" id="presentationMeta"></div>
+          <div class="presentation-score" id="presentationScore"></div>
+          <details open>
+            <summary>生圖 Prompt</summary>
+            <p id="presentationPrompt"></p>
+          </details>
+        </aside>
+      </div>
+    </div>
 
     <section class="login-screen" id="loginScreen">
       <div class="login-panel">
@@ -134,23 +154,23 @@
 
             <label>
               <span>動植物環境特色</span>
-              <textarea name="environmentNotes" rows="3" placeholder="地形、氣候、水分、光照、溫度、季節變化"></textarea>
+              <textarea name="environmentNotes" rows="3" placeholder="地形、氣候、水分、光照、溫度、季節變化" required></textarea>
             </label>
 
             <div class="field-pair">
               <label>
                 <span>植物特色</span>
-                <textarea name="plantNotes" rows="3" placeholder="主要植物、葉片或根系適應、優勢植物"></textarea>
+                <textarea name="plantNotes" rows="3" placeholder="主要植物、葉片或根系適應、優勢植物" required></textarea>
               </label>
               <label>
                 <span>動物特色</span>
-                <textarea name="animalNotes" rows="3" placeholder="主要動物、覓食方式、保護色、遷徙或活動時間"></textarea>
+                <textarea name="animalNotes" rows="3" placeholder="主要動物、覓食方式、保護色、遷徙或活動時間" required></textarea>
               </label>
             </div>
 
             <label>
               <span>生物互動</span>
-              <textarea name="relationshipNotes" rows="3" placeholder="食物鏈、競爭、共生、掠食、分解者"></textarea>
+              <textarea name="relationshipNotes" rows="3" placeholder="食物鏈、競爭、共生、掠食、分解者" required></textarea>
             </label>
 
             <div class="draft-panel hidden" id="draftPanel">
@@ -350,6 +370,7 @@
                   <th>座號</th>
                   <th>姓名</th>
                   <th>生態系</th>
+                  <th>草案相似度</th>
                   <th>平均</th>
                   <th>評分</th>
                   <th>繳交時間</th>
@@ -363,6 +384,11 @@
           <div class="comments-panel">
             <h2>同儕回饋</h2>
             <div id="teacherComments"></div>
+          </div>
+
+          <div class="comments-panel">
+            <h2>學生文字資料與 Prompt</h2>
+            <div id="teacherSubmissionDetails"></div>
           </div>
         </div>
       </section>

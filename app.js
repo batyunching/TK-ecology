@@ -96,6 +96,38 @@ const ECOSYSTEM_DRAFTS = {
   }
 };
 
+const SIMILARITY_STOP_TOKENS = new Set([
+  "植物",
+  "動物",
+  "生物",
+  "生態",
+  "生態系",
+  "環境",
+  "特色",
+  "主要",
+  "包含",
+  "形成",
+  "提供",
+  "影響",
+  "草食",
+  "肉食",
+  "雜食",
+  "無脊",
+  "椎動",
+  "物動",
+  "食蟲",
+  "分解",
+  "關係",
+  "食物",
+  "食物鏈",
+  "取食",
+  "可在",
+  "常有",
+  "為主",
+  "以及",
+  "例如"
+]);
+
 const storageKeys = {
   session: "eco44-session",
   submissions: "eco44-submissions",
@@ -192,6 +224,13 @@ function bindEvents() {
   $("#imageUrl").addEventListener("input", handleImageUrlPreview);
   $("#teacherLoginForm").addEventListener("submit", handleTeacherLogin);
   $("#exportCsvBtn").addEventListener("click", exportCsv);
+  $("#presentationCloseBtn").addEventListener("click", closePresentation);
+  $("#presentationModal").addEventListener("click", (event) => {
+    if (event.target.id === "presentationModal") closePresentation();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closePresentation();
+  });
 
   $$("input[name='groupSize']").forEach((input) => {
     input.addEventListener("change", updateGroupFields);
@@ -501,8 +540,16 @@ async function handleSubmission(event) {
   const data = new FormData(form);
   const prompt = clean(data.get("prompt"));
   const ecosystem = clean(data.get("ecosystemType"));
+  const environment = clean(data.get("environmentNotes"));
+  const plants = clean(data.get("plantNotes"));
+  const animals = clean(data.get("animalNotes"));
+  const relationships = clean(data.get("relationshipNotes"));
   if (!ecosystem || !prompt) {
     toast("請確認生態系與 Prompt。");
+    return;
+  }
+  if (!environment || !plants || !animals || !relationships) {
+    toast("請先完成環境、植物、動物與生物互動四欄。");
     return;
   }
   if (!generatedImage?.url) {
@@ -532,10 +579,10 @@ async function handleSubmission(event) {
       student_b_name: session.nameB || null,
       owner_token: session.ownerToken,
       ecosystem_type: ecosystem,
-      environment_notes: clean(data.get("environmentNotes")),
-      plant_notes: clean(data.get("plantNotes")),
-      animal_notes: clean(data.get("animalNotes")),
-      relationship_notes: clean(data.get("relationshipNotes")),
+      environment_notes: environment,
+      plant_notes: plants,
+      animal_notes: animals,
+      relationship_notes: relationships,
       prompt,
       image_url: imageUrl,
       image_path: imagePath,
@@ -607,7 +654,8 @@ function renderGallery() {
   const sortBy = $("#sortWorks").value;
   const scored = submissions.map((submission) => ({
     ...submission,
-    score: getScoreSummary(submission.id)
+    score: getScoreSummary(submission.id),
+    similarity: getDraftSimilarity(submission)
   }));
 
   const filtered = scored
@@ -622,6 +670,9 @@ function renderGallery() {
 
   grid.innerHTML = filtered.map(renderWorkCard).join("");
   $$(".rating-form", grid).forEach((form) => form.addEventListener("submit", handleRating));
+  $$(".presentation-open", grid).forEach((button) => {
+    button.addEventListener("click", () => openPresentation(button.dataset.id));
+  });
   initIcons();
 }
 
@@ -633,7 +684,10 @@ function renderWorkCard(item) {
 
   return `
     <article class="work-card">
-      <img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.ecosystem_type)}作品圖片" loading="lazy" />
+      <button class="work-image-btn presentation-open" type="button" data-id="${escapeAttr(item.id)}" aria-label="放大展示 ${escapeAttr(item.ecosystem_type)} 作品">
+        <img src="${escapeAttr(item.image_url)}" alt="${escapeAttr(item.ecosystem_type)}作品圖片" loading="lazy" />
+        <span><i data-lucide="maximize-2"></i> 放大展示</span>
+      </button>
       <div class="work-body">
         <div class="tag-row">
           <span class="tag">${escapeHtml(item.class_name)} 班</span>
@@ -646,10 +700,19 @@ function renderWorkCard(item) {
           <strong>${scoreLabel}</strong>
           <span>${item.score.count} 人</span>
         </div>
+        <div class="similarity-line">
+          <span>草案相似度</span>
+          <strong class="similarity-pill ${similarityClass(item.similarity.average)}">${item.similarity.average}%</strong>
+          <span>${escapeHtml(item.similarity.label)}</span>
+        </div>
         <details>
           <summary>查看 Prompt</summary>
           <p>${escapeHtml(item.prompt)}</p>
         </details>
+        <button class="secondary-btn full presentation-open" type="button" data-id="${escapeAttr(item.id)}">
+          <i data-lucide="presentation"></i>
+          <span>大螢幕介紹</span>
+        </button>
         <form class="rating-form" data-id="${escapeAttr(item.id)}">
           <label>
             <span>分數</span>
@@ -676,6 +739,37 @@ function renderWorkCard(item) {
       </div>
     </article>
   `;
+}
+
+function openPresentation(submissionId) {
+  const item = submissions.find((submission) => submission.id === submissionId);
+  if (!item) return;
+  const score = getScoreSummary(item.id);
+  const similarity = getDraftSimilarity(item);
+  $("#presentationImage").src = item.image_url;
+  $("#presentationImage").alt = `${item.ecosystem_type}作品圖片`;
+  $("#presentationTitle").textContent = item.ecosystem_type;
+  $("#presentationMeta").innerHTML = `
+    <span>${escapeHtml(item.class_name)} 班</span>
+    <span>${escapeHtml(displaySubmissionSeats(item))} 號</span>
+    <span>${escapeHtml(displaySubmissionNames(item))}</span>
+  `;
+  $("#presentationScore").innerHTML = `
+    <div><span>平均分數</span><strong>${score.count ? score.average.toFixed(1) : "-"}</strong><small>${score.count} 人評分</small></div>
+    <div><span>草案相似度</span><strong class="similarity-pill ${similarityClass(similarity.average)}">${similarity.average}%</strong><small>${escapeHtml(similarity.label)}</small></div>
+  `;
+  $("#presentationPrompt").textContent = item.prompt || "-";
+  $("#presentationModal").classList.remove("hidden");
+  document.body.classList.add("modal-open");
+  initIcons();
+}
+
+function closePresentation() {
+  const modal = $("#presentationModal");
+  if (!modal || modal.classList.contains("hidden")) return;
+  modal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+  $("#presentationImage").src = "";
 }
 
 async function handleRating(event) {
@@ -755,7 +849,8 @@ function renderTeacher() {
 
   const summaries = submissions.map((submission) => ({
     ...submission,
-    score: getScoreSummary(submission.id)
+    score: getScoreSummary(submission.id),
+    similarity: getDraftSimilarity(submission)
   }));
   const ratedWorks = summaries.filter((item) => item.score.count > 0);
   const allRatingScores = ratings.map((rating) => Number(rating.score)).filter(Boolean);
@@ -776,6 +871,7 @@ function renderTeacher() {
         <td>${escapeHtml(displaySubmissionSeats(item))}</td>
         <td>${escapeHtml(displaySubmissionNames(item))}</td>
         <td>${escapeHtml(item.ecosystem_type)}</td>
+        <td><span class="similarity-pill ${similarityClass(item.similarity.average)}">${item.similarity.average}%</span><br><small>${escapeHtml(item.similarity.label)}</small></td>
         <td>${item.score.count ? item.score.average.toFixed(1) : "-"}</td>
         <td>${item.score.count}</td>
         <td>${formatDate(item.created_at)}</td>
@@ -799,18 +895,56 @@ function renderTeacher() {
     : `<div class="comment-item"><p>尚無評分回饋。</p></div>`;
 
   $("#teacherComments").innerHTML = commentHtml;
+
+  $("#teacherSubmissionDetails").innerHTML = summaries.length
+    ? summaries
+      .sort((a, b) => sortSeat(a.student_a_seat) - sortSeat(b.student_a_seat))
+      .map(renderTeacherSubmissionDetail)
+      .join("")
+    : `<div class="comment-item"><p>尚無繳交資料。</p></div>`;
 }
 
 function exportCsv() {
-  const header = ["班級", "座號", "姓名", "生態系", "Prompt", "圖片網址", "平均分數", "評分人數", "繳交時間"];
+  const header = [
+    "班級",
+    "座號",
+    "姓名",
+    "生態系",
+    "環境特色",
+    "植物特色",
+    "動物特色",
+    "生物互動",
+    "Prompt",
+    "草案總相似度",
+    "環境相似度",
+    "植物相似度",
+    "動物相似度",
+    "互動相似度",
+    "相似度判讀",
+    "圖片網址",
+    "平均分數",
+    "評分人數",
+    "繳交時間"
+  ];
   const rows = submissions.map((item) => {
     const summary = getScoreSummary(item.id);
+    const similarity = getDraftSimilarity(item);
     return [
       item.class_name,
       displaySubmissionSeats(item),
       displaySubmissionNames(item),
       item.ecosystem_type,
+      item.environment_notes,
+      item.plant_notes,
+      item.animal_notes,
+      item.relationship_notes,
       item.prompt,
+      `${similarity.average}%`,
+      `${similarity.environment}%`,
+      `${similarity.plants}%`,
+      `${similarity.animals}%`,
+      `${similarity.relationships}%`,
+      similarity.label,
       item.image_url,
       summary.count ? summary.average.toFixed(1) : "",
       summary.count,
@@ -825,6 +959,45 @@ function exportCsv() {
   link.download = `ecosystem-submissions-${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function renderTeacherSubmissionDetail(item) {
+  return `
+    <article class="teacher-detail-card">
+      <div class="teacher-detail-head">
+        <div>
+          <strong>${escapeHtml(displaySubmissionSeats(item))} 號｜${escapeHtml(displaySubmissionNames(item))}</strong>
+          <p>${escapeHtml(item.class_name)} 班｜${escapeHtml(item.ecosystem_type)}</p>
+        </div>
+        <div class="similarity-summary">
+          <span class="similarity-pill ${similarityClass(item.similarity.average)}">${item.similarity.average}%</span>
+          <small>${escapeHtml(item.similarity.label)}</small>
+        </div>
+      </div>
+      <div class="teacher-text-grid">
+        <section>
+          <h3>環境特色 <small>${item.similarity.environment}%</small></h3>
+          <p>${escapeHtml(item.environment_notes || "-")}</p>
+        </section>
+        <section>
+          <h3>植物特色 <small>${item.similarity.plants}%</small></h3>
+          <p>${escapeHtml(item.plant_notes || "-")}</p>
+        </section>
+        <section>
+          <h3>動物特色 <small>${item.similarity.animals}%</small></h3>
+          <p>${escapeHtml(item.animal_notes || "-")}</p>
+        </section>
+        <section>
+          <h3>生物互動 <small>${item.similarity.relationships}%</small></h3>
+          <p>${escapeHtml(item.relationship_notes || "-")}</p>
+        </section>
+      </div>
+      <details class="teacher-prompt-detail">
+        <summary>查看最後 Prompt</summary>
+        <p>${escapeHtml(item.prompt || "-")}</p>
+      </details>
+    </article>
+  `;
 }
 
 function resetSubmissionForm() {
@@ -849,6 +1022,93 @@ function getScoreSummary(submissionId) {
   const count = list.length;
   const average = count ? list.reduce((sum, rating) => sum + Number(rating.score), 0) / count : 0;
   return { count, average };
+}
+
+function getDraftSimilarity(submission) {
+  const draft = ECOSYSTEM_DRAFTS[submission.ecosystem_type];
+  const scores = {
+    environment: draft ? textSimilarityPercent(submission.environment_notes, draft.environment) : 0,
+    plants: draft ? textSimilarityPercent(submission.plant_notes, draft.plants) : 0,
+    animals: draft ? textSimilarityPercent(submission.animal_notes, draft.animals) : 0,
+    relationships: draft ? textSimilarityPercent(submission.relationship_notes, draft.relationships) : 0
+  };
+  const values = Object.values(scores);
+  const average = values.length ? Math.round(values.reduce((sum, score) => sum + score, 0) / values.length) : 0;
+  return {
+    ...scores,
+    average,
+    label: similarityLabel(average)
+  };
+}
+
+function textSimilarityPercent(studentText, draftText) {
+  const studentTokens = tokenizeForSimilarity(studentText);
+  const draftTokens = tokenizeForSimilarity(draftText);
+  if (!studentTokens.length || !draftTokens.length) return 0;
+
+  const studentSet = new Set(studentTokens);
+  const draftSet = new Set(draftTokens);
+  const shared = [...studentSet].filter((token) => draftSet.has(token)).length;
+  const coverage = shared / draftSet.size;
+  const overlap = shared / studentSet.size;
+  const phraseBoost = longestCommonSubstringRatio(normalizeText(studentText), normalizeText(draftText));
+
+  return Math.round(Math.max(coverage * 0.55 + overlap * 0.25 + phraseBoost * 0.2, 0) * 100);
+}
+
+function tokenizeForSimilarity(value) {
+  const normalized = normalizeText(value);
+  if (!normalized) return [];
+
+  const words = normalized.match(/[a-z0-9]+/g) || [];
+  const chinese = normalized.replace(/[a-z0-9\s]/g, "");
+  const grams = [];
+  for (let i = 0; i < chinese.length - 1; i += 1) {
+    grams.push(chinese.slice(i, i + 2));
+  }
+  return [...words, ...grams].filter((token) => token.length >= 2 && !SIMILARITY_STOP_TOKENS.has(token));
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[，。！？、；：「」『』（）()【】\[\]《》,.!?;:'"“”‘’\-_/\\|0-9]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function longestCommonSubstringRatio(a, b) {
+  if (!a || !b) return 0;
+  const shorter = a.length <= b.length ? a : b;
+  const longer = a.length <= b.length ? b : a;
+  let best = 0;
+  const previous = new Array(longer.length + 1).fill(0);
+
+  for (let i = 1; i <= shorter.length; i += 1) {
+    let prevDiagonal = 0;
+    for (let j = 1; j <= longer.length; j += 1) {
+      const temp = previous[j];
+      previous[j] = shorter[i - 1] === longer[j - 1] ? prevDiagonal + 1 : 0;
+      if (previous[j] > best) best = previous[j];
+      prevDiagonal = temp;
+    }
+  }
+
+  return best / Math.max(shorter.length, 1);
+}
+
+function similarityLabel(score) {
+  if (score >= 90) return "幾乎是內建草案";
+  if (score >= 75) return "高度接近草案";
+  if (score >= 50) return "部分參考草案";
+  if (score >= 25) return "有明顯自行整理";
+  return "與草案差異大";
+}
+
+function similarityClass(score) {
+  if (score >= 75) return "high";
+  if (score >= 50) return "medium";
+  return "low";
 }
 
 function sortSubmissions(a, b, sortBy) {
