@@ -1,7 +1,7 @@
 const CONFIG = {
   SUPABASE_URL: "https://bhyygpbeijrxspekrixg.supabase.co",
   SUPABASE_ANON_KEY: "sb_publishable_sueEe9QWbkzc0rAoBG_jtw_t_AI5dQ1",
-  TEACHER_CODE: "ecosystem44",
+  TEACHER_CODE: "22725015",
   STORAGE_BUCKET: "generated-images",
   EDGE_FUNCTION: "generate-ecosystem-image"
 };
@@ -221,7 +221,6 @@ function bindEvents() {
   $("#copyPromptBtn").addEventListener("click", copyPrompt);
   $("#resetFormBtn").addEventListener("click", resetSubmissionForm);
   $("#imageFile").addEventListener("change", handleImageFilePreview);
-  $("#imageUrl").addEventListener("input", handleImageUrlPreview);
   $("#teacherLoginForm").addEventListener("submit", handleTeacherLogin);
   $("#exportCsvBtn").addEventListener("click", exportCsv);
   $("#presentationCloseBtn").addEventListener("click", closePresentation);
@@ -241,7 +240,7 @@ function bindEvents() {
     button.addEventListener("click", () => switchView(button.dataset.view));
   });
 
-  ["filterEcosystem", "filterSeat", "sortWorks"].forEach((id) => {
+  ["filterClass", "filterEcosystem", "filterSeat", "sortWorks"].forEach((id) => {
     $(`#${id}`).addEventListener("input", renderGallery);
   });
 
@@ -257,6 +256,7 @@ function fillEcosystemSelects() {
   const options = ECOSYSTEMS.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("");
   $("#ecosystemType").innerHTML = `<option value="">請選擇</option>${options}`;
   $("#filterEcosystem").innerHTML = `<option value="">全部</option>${options}`;
+  $("#filterClass").innerHTML = `<option value="">全部</option>`;
 }
 
 function updateGroupFields() {
@@ -516,20 +516,7 @@ async function handleImageFilePreview(event) {
     source: "upload",
     file
   };
-  $("#imageUrl").value = "";
   setPreviewImage(dataUrl, "已選取");
-}
-
-function handleImageUrlPreview(event) {
-  const url = clean(event.target.value);
-  if (!url) return;
-  generatedImage = {
-    url,
-    path: "",
-    source: "url"
-  };
-  $("#imageFile").value = "";
-  setPreviewImage(url, "圖片網址");
 }
 
 async function handleSubmission(event) {
@@ -553,7 +540,7 @@ async function handleSubmission(event) {
     return;
   }
   if (!generatedImage?.url) {
-    toast("請先上傳圖片或貼上圖片網址。");
+    toast("請先上傳圖片。");
     return;
   }
 
@@ -643,12 +630,15 @@ async function refreshData() {
     submissions = loadJson(storageKeys.submissions) || [];
     ratings = loadJson(storageKeys.ratings) || [];
   }
+  updateClassFilterOptions();
 }
 
 function renderGallery() {
   const grid = $("#galleryGrid");
   if (!grid) return;
 
+  updateClassFilterOptions();
+  const classFilter = $("#filterClass").value;
   const ecosystemFilter = $("#filterEcosystem").value;
   const seatFilter = clean($("#filterSeat").value);
   const sortBy = $("#sortWorks").value;
@@ -659,6 +649,7 @@ function renderGallery() {
   }));
 
   const filtered = scored
+    .filter((item) => !classFilter || item.class_name === classFilter)
     .filter((item) => !ecosystemFilter || item.ecosystem_type === ecosystemFilter)
     .filter((item) => !seatFilter || displaySubmissionSeats(item).includes(seatFilter))
     .sort((a, b) => sortSubmissions(a, b, sortBy));
@@ -674,6 +665,18 @@ function renderGallery() {
     button.addEventListener("click", () => openPresentation(button.dataset.id));
   });
   initIcons();
+}
+
+function updateClassFilterOptions() {
+  const select = $("#filterClass");
+  if (!select) return;
+  const current = select.value;
+  const classes = [...new Set(submissions.map((item) => item.class_name).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "zh-Hant", { numeric: true }));
+  select.innerHTML = `<option value="">全部</option>${classes.map((className) => `<option value="${escapeAttr(className)}">${escapeHtml(className)}</option>`).join("")}`;
+  if (classes.includes(current)) {
+    select.value = current;
+  }
 }
 
 function renderWorkCard(item) {
@@ -876,6 +879,12 @@ function renderTeacher() {
         <td>${item.score.count}</td>
         <td>${formatDate(item.created_at)}</td>
         <td><a href="${escapeAttr(item.image_url)}" target="_blank" rel="noreferrer">開啟</a></td>
+        <td>
+          <button class="danger-btn delete-work-btn" type="button" data-id="${escapeAttr(item.id)}">
+            <i data-lucide="trash-2"></i>
+            <span>刪除</span>
+          </button>
+        </td>
       </tr>
     `)
     .join("");
@@ -902,6 +911,43 @@ function renderTeacher() {
       .map(renderTeacherSubmissionDetail)
       .join("")
     : `<div class="comment-item"><p>尚無繳交資料。</p></div>`;
+  bindDeleteButtons();
+}
+
+function bindDeleteButtons() {
+  $$(".delete-work-btn").forEach((button) => {
+    button.addEventListener("click", () => deleteSubmission(button.dataset.id));
+  });
+}
+
+async function deleteSubmission(submissionId) {
+  const item = submissions.find((submission) => submission.id === submissionId);
+  if (!item) return;
+  const ok = window.confirm(`確定要刪除 ${item.class_name} 班 ${displaySubmissionSeats(item)} 號的作品嗎？\n\n刪除後作品與同儕評分會一起移除。`);
+  if (!ok) return;
+
+  try {
+    if (supabaseClient) {
+      await supabaseClient.from("ratings").delete().eq("submission_id", submissionId);
+      const { error } = await supabaseClient.from("submissions").delete().eq("id", submissionId);
+      if (error) throw error;
+      if (item.image_path) {
+        await supabaseClient.storage.from(CONFIG.STORAGE_BUCKET).remove([item.image_path]);
+      }
+    } else {
+      submissions = submissions.filter((submission) => submission.id !== submissionId);
+      ratings = ratings.filter((rating) => rating.submission_id !== submissionId);
+      saveJson(storageKeys.submissions, submissions);
+      saveJson(storageKeys.ratings, ratings);
+    }
+
+    await refreshData();
+    renderGallery();
+    renderTeacher();
+    toast("作品已刪除。");
+  } catch (error) {
+    toast(error.message || "刪除失敗，請確認 Supabase delete policy。");
+  }
 }
 
 function exportCsv() {
@@ -921,7 +967,7 @@ function exportCsv() {
     "動物相似度",
     "互動相似度",
     "相似度判讀",
-    "圖片網址",
+    "圖片連結",
     "平均分數",
     "評分人數",
     "繳交時間"
@@ -996,6 +1042,10 @@ function renderTeacherSubmissionDetail(item) {
         <summary>查看最後 Prompt</summary>
         <p>${escapeHtml(item.prompt || "-")}</p>
       </details>
+      <button class="danger-btn delete-work-btn" type="button" data-id="${escapeAttr(item.id)}">
+        <i data-lucide="trash-2"></i>
+        <span>刪除此作品</span>
+      </button>
     </article>
   `;
 }

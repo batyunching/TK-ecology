@@ -332,7 +332,8 @@ textarea:focus {
 .primary-btn,
 .secondary-btn,
 .ghost-btn,
-.icon-text-btn {
+.icon-text-btn,
+.danger-btn {
   min-height: 42px;
   display: inline-flex;
   align-items: center;
@@ -348,7 +349,8 @@ textarea:focus {
 .primary-btn svg,
 .secondary-btn svg,
 .ghost-btn svg,
-.icon-text-btn svg {
+.icon-text-btn svg,
+.danger-btn svg {
   width: 18px;
   height: 18px;
   flex: 0 0 auto;
@@ -385,6 +387,13 @@ textarea:focus {
   color: var(--forest-deep);
   background: rgba(255, 255, 255, 0.76);
   border-color: rgba(36, 101, 74, 0.18);
+}
+
+.danger-btn {
+  padding: 0 12px;
+  color: #ffffff;
+  background: var(--danger);
+  border-color: rgba(180, 68, 54, 0.22);
 }
 
 .icon-text-btn {
@@ -570,25 +579,6 @@ textarea:focus {
   display: none;
 }
 
-.prompt-checklist {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  margin-top: 14px;
-}
-
-.prompt-checklist span {
-  min-height: 34px;
-  display: grid;
-  place-items: center;
-  color: var(--forest-deep);
-  font-size: 0.82rem;
-  font-weight: 800;
-  border: 1px solid rgba(36, 101, 74, 0.16);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.7);
-}
-
 .filter-band {
   margin: 0 0 18px;
   padding: 18px;
@@ -600,7 +590,7 @@ textarea:focus {
 
 .filter-controls {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(120px, 0.6fr) minmax(150px, 0.8fr);
+  grid-template-columns: minmax(120px, 0.7fr) minmax(180px, 1fr) minmax(110px, 0.6fr) minmax(150px, 0.8fr);
   gap: 12px;
   align-items: end;
 }
@@ -967,6 +957,10 @@ td small {
   margin-top: 12px;
 }
 
+.teacher-detail-card .danger-btn {
+  margin-top: 12px;
+}
+
 .presentation-modal {
   position: fixed;
   inset: 0;
@@ -1191,10 +1185,6 @@ td small {
 
   .draft-grid {
     grid-template-columns: 1fr;
-  }
-
-  .prompt-checklist {
-    grid-template-columns: repeat(2, 1fr);
   }
 
   .teacher-detail-head {

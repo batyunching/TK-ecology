@@ -9,7 +9,7 @@
 老師後台預設代碼：
 
 ```text
-ecosystem44
+22725015
 ```
 
 ## 接上 Supabase
@@ -27,7 +27,7 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=你的_Service_Role_Key
 
 ## 資料表
 
-`submissions` 儲存班級、座號、姓名、小組人數、生態系種類、Prompt、圖片網址與繳交時間。
+`submissions` 儲存班級、座號、姓名、小組人數、生態系種類、Prompt、圖片連結與繳交時間。
 
 `ratings` 儲存評分者、分數、優點、可增加內容，並用 `submissions_with_average` view 計算每件作品的平均分數與評分人數。
 
@@ -35,8 +35,10 @@ supabase secrets set SUPABASE_SERVICE_ROLE_KEY=你的_Service_Role_Key
 
 學生先自行填寫環境、植物、動物與生物互動內容，再按「組合 Prompt」。若需要比較，可按「查看內建草案」顯示參考資料；草案直接內建在 `app.js`，不會自動填入或覆蓋學生內容。
 
-學生可以複製 Prompt 到自己的 Gemini 或 ChatGPT 生圖，再回網站上傳圖片或貼上圖片網址。
+學生可以複製 Prompt 到自己的 Gemini 或 ChatGPT 生圖，再回網站上傳圖片。
 
 ## 正式上課提醒
 
-目前學生登入是課堂用的輕量登入，方便快速開始活動。若要公開到網路或長期使用，建議再加上 Supabase Auth 或班級邀請碼，老師後台也可改成真正的帳號權限控管。
+目前學生登入和老師後台是課堂用的輕量控管，方便快速開始活動。若要公開到網路或長期使用，建議再加上 Supabase Auth 或班級邀請碼，老師後台也可改成真正的帳號權限控管。
+
+若要使用老師後台的作品刪除功能，請在 Supabase SQL Editor 重新執行更新後的 `supabase/schema.sql`，讓資料表與 Storage 允許刪除操作。

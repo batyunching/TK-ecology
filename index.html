@@ -153,7 +153,7 @@
             </div>
 
             <label>
-              <span>動植物環境特色</span>
+              <span>環境特色</span>
               <textarea name="environmentNotes" rows="3" placeholder="地形、氣候、水分、光照、溫度、季節變化" required></textarea>
             </label>
 
@@ -235,16 +235,10 @@
               <span>請將指令貼到自己的 Gemini 或 ChatGPT 生成圖片，再將圖片上傳到這個網頁。</span>
             </div>
 
-            <div class="field-pair">
-              <label>
-                <span>上傳圖片</span>
-                <input name="imageFile" id="imageFile" type="file" accept="image/*" />
-              </label>
-              <label>
-                <span>圖片網址</span>
-                <input name="imageUrl" id="imageUrl" type="url" placeholder="https://..." />
-              </label>
-            </div>
+            <label>
+              <span>上傳圖片</span>
+              <input name="imageFile" id="imageFile" type="file" accept="image/*" />
+            </label>
 
             <button class="primary-btn full" type="submit">
               <i data-lucide="send"></i>
@@ -269,13 +263,6 @@
               </div>
             </div>
 
-            <div class="prompt-checklist">
-              <span>環境</span>
-              <span>植物</span>
-              <span>動物</span>
-              <span>互動</span>
-              <span>風格</span>
-            </div>
           </aside>
         </div>
       </section>
@@ -287,6 +274,10 @@
             <h2>作品展覽與同儕評分</h2>
           </div>
           <div class="filter-controls">
+            <label>
+              <span>班級</span>
+              <select id="filterClass"></select>
+            </label>
             <label>
               <span>生態系</span>
               <select id="filterEcosystem"></select>
@@ -375,6 +366,7 @@
                   <th>評分</th>
                   <th>繳交時間</th>
                   <th>圖片</th>
+                  <th>管理</th>
                 </tr>
               </thead>
               <tbody id="teacherRows"></tbody>
