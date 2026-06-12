@@ -59,6 +59,12 @@ on public.submissions for insert
 to anon
 with check (true);
 
+drop policy if exists "Teacher can delete submissions" on public.submissions;
+create policy "Teacher can delete submissions"
+on public.submissions for delete
+to anon
+using (true);
+
 drop policy if exists "Students can read ratings" on public.ratings;
 create policy "Students can read ratings"
 on public.ratings for select
@@ -70,6 +76,12 @@ create policy "Students can insert ratings"
 on public.ratings for insert
 to anon
 with check (true);
+
+drop policy if exists "Teacher can delete ratings" on public.ratings;
+create policy "Teacher can delete ratings"
+on public.ratings for delete
+to anon
+using (true);
 
 insert into storage.buckets (id, name, public)
 values ('generated-images', 'generated-images', true)
@@ -86,6 +98,12 @@ create policy "Student image uploads"
 on storage.objects for insert
 to anon
 with check (bucket_id = 'generated-images');
+
+drop policy if exists "Teacher image deletes" on storage.objects;
+create policy "Teacher image deletes"
+on storage.objects for delete
+to anon
+using (bucket_id = 'generated-images');
 
 drop index if exists public.submissions_class_seat_idx;
 create index submissions_class_seat_idx on public.submissions (class_name, student_a_seat);
