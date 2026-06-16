@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>4.4 生態系生圖工作室</title>
-    <link rel="stylesheet" href="./styles.css" />
-    <script defer src="./app.js"></script>
+    <link rel="stylesheet" href="./styles.css?v=20260616-teacher-filter" />
+    <script defer src="./app.js?v=20260616-teacher-filter"></script>
   </head>
   <body>
     <div class="site-bg"></div>
@@ -327,11 +327,24 @@
             <div>
               <p class="tiny-label">Teacher Dashboard</p>
               <h2>繳交總覽</h2>
+              <p class="dashboard-version">版本 2026-06-16 班級篩選版</p>
             </div>
-            <button class="secondary-btn" id="exportCsvBtn" type="button">
-              <i data-lucide="download"></i>
-              <span>匯出 CSV</span>
-            </button>
+            <div class="teacher-actions">
+              <button class="secondary-btn" id="exportCsvBtn" type="button">
+                <i data-lucide="download"></i>
+                <span>匯出 CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="teacher-filter-panel">
+            <label class="teacher-class-filter">
+              <span>班級篩選</span>
+              <select id="teacherFilterClass">
+                <option value="">全部班級</option>
+              </select>
+            </label>
+            <p>選擇班級後，下方統計、作品清單、同儕回饋與 CSV 匯出都會只顯示該班資料。</p>
           </div>
 
           <div class="stat-grid">

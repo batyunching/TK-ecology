@@ -145,6 +145,7 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
 document.addEventListener("DOMContentLoaded", async () => {
+  ensureTeacherFilterControl();
   fillEcosystemSelects();
   bindEvents();
   loadIconLibrary();
@@ -223,6 +224,7 @@ function bindEvents() {
   $("#imageFile").addEventListener("change", handleImageFilePreview);
   $("#teacherLoginForm").addEventListener("submit", handleTeacherLogin);
   $("#exportCsvBtn").addEventListener("click", exportCsv);
+  $("#teacherFilterClass")?.addEventListener("input", renderTeacher);
   $("#presentationCloseBtn").addEventListener("click", closePresentation);
   $("#presentationModal").addEventListener("click", (event) => {
     if (event.target.id === "presentationModal") closePresentation();
@@ -257,6 +259,27 @@ function fillEcosystemSelects() {
   $("#ecosystemType").innerHTML = `<option value="">請選擇</option>${options}`;
   $("#filterEcosystem").innerHTML = `<option value="">全部</option>${options}`;
   $("#filterClass").innerHTML = `<option value="">全部</option>`;
+  $("#teacherFilterClass").innerHTML = `<option value="">全部班級</option>`;
+}
+
+function ensureTeacherFilterControl() {
+  if ($("#teacherFilterClass")) return;
+  const statGrid = $(".stat-grid");
+  const dashboard = $("#teacherDashboard");
+  if (!statGrid || !dashboard) return;
+
+  const panel = document.createElement("div");
+  panel.className = "teacher-filter-panel";
+  panel.innerHTML = `
+    <label class="teacher-class-filter">
+      <span>班級篩選</span>
+      <select id="teacherFilterClass">
+        <option value="">全部班級</option>
+      </select>
+    </label>
+    <p>選擇班級後，下方統計、作品清單、同儕回饋與 CSV 匯出都會只顯示該班資料。</p>
+  `;
+  dashboard.insertBefore(panel, statGrid);
 }
 
 function updateGroupFields() {
@@ -631,6 +654,7 @@ async function refreshData() {
     ratings = loadJson(storageKeys.ratings) || [];
   }
   updateClassFilterOptions();
+  updateTeacherClassFilterOptions();
 }
 
 function renderGallery() {
@@ -677,6 +701,30 @@ function updateClassFilterOptions() {
   if (classes.includes(current)) {
     select.value = current;
   }
+}
+
+function updateTeacherClassFilterOptions() {
+  const select = $("#teacherFilterClass");
+  if (!select) return;
+  const current = select.value;
+  const classes = [...new Set(submissions.map((item) => item.class_name).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "zh-Hant", { numeric: true }));
+  select.innerHTML = `<option value="">全部班級</option>${classes.map((className) => `<option value="${escapeAttr(className)}">${escapeHtml(className)}</option>`).join("")}`;
+  if (classes.includes(current)) {
+    select.value = current;
+  }
+}
+
+function getTeacherFilteredSubmissions() {
+  const classFilter = $("#teacherFilterClass")?.value || "";
+  return classFilter
+    ? submissions.filter((submission) => submission.class_name === classFilter)
+    : [...submissions];
+}
+
+function getTeacherFilteredRatings(filteredSubmissions) {
+  const visibleIds = new Set(filteredSubmissions.map((submission) => submission.id));
+  return ratings.filter((rating) => visibleIds.has(rating.submission_id));
 }
 
 function renderWorkCard(item) {
@@ -850,13 +898,16 @@ function renderTeacher() {
   $("#teacherDashboard").classList.toggle("hidden", !unlocked);
   if (!unlocked) return;
 
-  const summaries = submissions.map((submission) => ({
+  updateTeacherClassFilterOptions();
+  const visibleSubmissions = getTeacherFilteredSubmissions();
+  const visibleRatings = getTeacherFilteredRatings(visibleSubmissions);
+  const summaries = visibleSubmissions.map((submission) => ({
     ...submission,
     score: getScoreSummary(submission.id),
     similarity: getDraftSimilarity(submission)
   }));
   const ratedWorks = summaries.filter((item) => item.score.count > 0);
-  const allRatingScores = ratings.map((rating) => Number(rating.score)).filter(Boolean);
+  const allRatingScores = visibleRatings.map((rating) => Number(rating.score)).filter(Boolean);
   const classAverage = allRatingScores.length
     ? (allRatingScores.reduce((sum, score) => sum + score, 0) / allRatingScores.length).toFixed(1)
     : "-";
@@ -864,11 +915,11 @@ function renderTeacher() {
   $("#statSubmissions").textContent = summaries.length;
   $("#statRated").textContent = ratedWorks.length;
   $("#statAverage").textContent = classAverage;
-  $("#statRatings").textContent = ratings.length;
+  $("#statRatings").textContent = visibleRatings.length;
 
-  $("#teacherRows").innerHTML = summaries
-    .sort((a, b) => sortSeat(a.student_a_seat) - sortSeat(b.student_a_seat))
-    .map((item) => `
+  const sortedSummaries = summaries.sort((a, b) => sortSeat(a.student_a_seat) - sortSeat(b.student_a_seat));
+  $("#teacherRows").innerHTML = sortedSummaries.length
+    ? sortedSummaries.map((item) => `
       <tr>
         <td>${escapeHtml(item.class_name)}</td>
         <td>${escapeHtml(displaySubmissionSeats(item))}</td>
@@ -887,11 +938,12 @@ function renderTeacher() {
         </td>
       </tr>
     `)
-    .join("");
+    .join("")
+    : `<tr><td colspan="10">目前沒有這個班級的繳交作品。</td></tr>`;
 
-  const commentHtml = ratings.length
-    ? ratings.map((rating) => {
-      const work = submissions.find((submission) => submission.id === rating.submission_id);
+  const commentHtml = visibleRatings.length
+    ? visibleRatings.map((rating) => {
+      const work = visibleSubmissions.find((submission) => submission.id === rating.submission_id);
       return `
         <div class="comment-item">
           <strong>${escapeHtml(rating.score)} 分｜${escapeHtml(rating.rater_seat)} 號 ${escapeHtml(rating.rater_name)}</strong>
@@ -905,9 +957,8 @@ function renderTeacher() {
 
   $("#teacherComments").innerHTML = commentHtml;
 
-  $("#teacherSubmissionDetails").innerHTML = summaries.length
-    ? summaries
-      .sort((a, b) => sortSeat(a.student_a_seat) - sortSeat(b.student_a_seat))
+  $("#teacherSubmissionDetails").innerHTML = sortedSummaries.length
+    ? sortedSummaries
       .map(renderTeacherSubmissionDetail)
       .join("")
     : `<div class="comment-item"><p>尚無繳交資料。</p></div>`;
@@ -972,7 +1023,9 @@ function exportCsv() {
     "評分人數",
     "繳交時間"
   ];
-  const rows = submissions.map((item) => {
+  const exportItems = getTeacherFilteredSubmissions();
+  const selectedClass = ($("#teacherFilterClass")?.value || "all").replace(/[\\/:*?"<>|]/g, "-");
+  const rows = exportItems.map((item) => {
     const summary = getScoreSummary(item.id);
     const similarity = getDraftSimilarity(item);
     return [
@@ -1002,7 +1055,7 @@ function exportCsv() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `ecosystem-submissions-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `ecosystem-submissions-${selectedClass}-${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }
