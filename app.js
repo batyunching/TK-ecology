@@ -946,7 +946,13 @@ function renderTeacher() {
       const work = visibleSubmissions.find((submission) => submission.id === rating.submission_id);
       return `
         <div class="comment-item">
-          <strong>${escapeHtml(rating.score)} 分｜${escapeHtml(rating.rater_seat)} 號 ${escapeHtml(rating.rater_name)}</strong>
+          <div class="comment-item-head">
+            <strong>${escapeHtml(rating.score)} 分｜${escapeHtml(rating.rater_seat)} 號 ${escapeHtml(rating.rater_name)}</strong>
+            <button class="danger-btn delete-rating-btn" type="button" data-id="${escapeAttr(rating.id || "")}" ${rating.id ? "" : "disabled"}>
+              <i data-lucide="trash-2"></i>
+              <span>刪除評分</span>
+            </button>
+          </div>
           <p>${escapeHtml(work?.ecosystem_type || "作品")}｜${escapeHtml(displaySubmissionNames(work || {}))}</p>
           <p>優點：${escapeHtml(rating.strength || "-")}</p>
           <p>可增加：${escapeHtml(rating.suggestion || "-")}</p>
@@ -963,11 +969,15 @@ function renderTeacher() {
       .join("")
     : `<div class="comment-item"><p>尚無繳交資料。</p></div>`;
   bindDeleteButtons();
+  initIcons();
 }
 
 function bindDeleteButtons() {
   $$(".delete-work-btn").forEach((button) => {
     button.addEventListener("click", () => deleteSubmission(button.dataset.id));
+  });
+  $$(".delete-rating-btn").forEach((button) => {
+    button.addEventListener("click", () => deleteRating(button.dataset.id));
   });
 }
 
@@ -998,6 +1008,38 @@ async function deleteSubmission(submissionId) {
     toast("作品已刪除。");
   } catch (error) {
     toast(error.message || "刪除失敗，請確認 Supabase delete policy。");
+  }
+}
+
+async function deleteRating(ratingId) {
+  if (!ratingId) {
+    toast("找不到這筆評分資料。");
+    return;
+  }
+  const rating = ratings.find((item) => item.id === ratingId);
+  if (!rating) {
+    toast("找不到這筆評分資料。");
+    return;
+  }
+
+  const ok = window.confirm(`確定要刪除 ${rating.rater_seat} 號 ${rating.rater_name} 的這筆評分嗎？\n\n刪除後只會移除這筆分數與評論，作品會保留。`);
+  if (!ok) return;
+
+  try {
+    if (supabaseClient) {
+      const { error } = await supabaseClient.from("ratings").delete().eq("id", ratingId);
+      if (error) throw error;
+    } else {
+      ratings = ratings.filter((item) => item.id !== ratingId);
+      saveJson(storageKeys.ratings, ratings);
+    }
+
+    await refreshData();
+    renderGallery();
+    renderTeacher();
+    toast("評分已刪除。");
+  } catch (error) {
+    toast(error.message || "刪除評分失敗，請確認 Supabase delete policy。");
   }
 }
 
